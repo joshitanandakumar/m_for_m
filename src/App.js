@@ -137,13 +137,19 @@ function handleOpen() {
 
         {showIntro ? (
           <div style={styles.introStage}>
-            <video
-              src="/dove.mp4"
-              autoPlay
-              muted
-              playsInline
-              style={{ ...styles.doveImg, mixBlendMode: "multiply" }}
-            />
+<video
+  src="/dove.mp4"
+  autoPlay
+  muted
+  playsInline
+  loop
+  preload="auto"
+  style={{
+    ...styles.doveImg,
+    mixBlendMode: "multiply",
+    pointerEvents: "none", // 🔥 prevents play button interaction
+  }}
+/>
           </div>
         ) : (
           <div style={{ ...styles.card, animation: "fadeInCard 0.7s ease forwards" }}>
