@@ -1,3 +1,18 @@
+@font-face {
+  font-family: 'Cinzel';
+  src: url('./fonts/Cinzel-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Cardo';
+  src: url('./fonts/Cardo-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Comfortaa';
+  src: url('./fonts/Comfortaa-Regular.ttf') format('truetype');
+}
+
 .App {
   text-align: center;
 }
@@ -35,4 +50,12 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #b8dded; /* fallback color matching your gradient */
+  overscroll-behavior: none; /* stops white pull bounce */
 }
