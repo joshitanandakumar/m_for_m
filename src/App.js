@@ -139,15 +139,21 @@ function handleOpen() {
           <div style={styles.introStage}>
 <video
   src="/dove.mp4"
-  autoPlay
   muted
   playsInline
+  autoPlay
   loop
   preload="auto"
+  controls={false}
+  ref={(video) => {
+    if (video) {
+      video.play().catch(() => {});
+    }
+  }}
   style={{
     ...styles.doveImg,
     mixBlendMode: "multiply",
-    pointerEvents: "none", // 🔥 prevents play button interaction
+    pointerEvents: "none",
   }}
 />
           </div>
