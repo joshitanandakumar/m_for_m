@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./App.css";
 
 const MESSAGES = [
@@ -25,16 +25,15 @@ const MESSAGES = [
   "Happyy Birthdayy madhu🙂‍↕️, big 24 ehh?? congratulations on being promoted to aunty and hope you stop bothering street dogs and cats now😊 jokes apart hope you have great great year, happy birthday againn🥳 -abra",
   "Many more happy returns of the day Madhu!! wishing you only the best and nothing less -ganesh",
   "'Baatein teri itni haseen'",
-  "You’re the ray of sunshine that keeps me warm and makes my life bright. -thara",
+  "You're the ray of sunshine that keeps me warm and makes my life bright. -thara",
   "madhu you are a light and the brightest star for so many people in your life , always hoping for a chance to get close to you and love you for the way you are and the amazing human being you are , stay the same and let's get drunk as soon as possible 🥰🥰🌹🌹💋💋💋 -Harini",
   "you absolutely slay, your body tea, skin smooth, your vibe ethereal, your haters will rot and you keep winning -Roofa",
-  "In next life we wouldn’t be long distance besties and we would have sleepover every weekends -Faheema",
-  "There aren’t enough words to express how much I love you, and I would do anything to keep you by my side. -thara",
+  "In next life we wouldn't be long distance besties and we would have sleepover every weekends -Faheema",
+  "There aren't enough words to express how much I love you, and I would do anything to keep you by my side. -thara",
   "'Dil karta hai teri baatein sunu'",
-  "You’re my world -Faheema",
+  "You're my world -Faheema",
   "thinking about you and how far you've come how many lives you've changed inspires me the most -joshi",
   "Hope you have a great year and you will always be in my prayers and hope you get everything you wish for🧿🧿🧿 -ganesh",
-
 ];
 
 const DAY_STORAGE_KEY = "motd_opened_date";
@@ -62,25 +61,55 @@ export default function App() {
   const [alreadyOpenedToday, setAlreadyOpenedToday] = useState(false);
   const [countdown, setCountdown] = useState(getMidnightCountdown());
   const [animating, setAnimating] = useState(false);
+  // showIntro always starts true so the dove plays on every page load / refresh
   const [showIntro, setShowIntro] = useState(true);
 
+  const videoRef = useRef(null);
+
+  // ── Autoplay the dove video as soon as it mounts ──────────────────────────
   useEffect(() => {
-    const timer = setTimeout(() => setShowIntro(false), 2400);
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Slow the dove down — 0.55× feels dreamy
+    video.playbackRate = 0.55;
+
+    const tryPlay = () => {
+      video.play().catch(() => {
+        // Some browsers still need a tiny delay before play() is allowed
+        setTimeout(() => video.play().catch(() => {}), 100);
+      });
+    };
+
+    if (video.readyState >= 3) {
+      tryPlay();
+    } else {
+      video.addEventListener("canplaythrough", tryPlay, { once: true });
+    }
+
+    return () => video.removeEventListener("canplaythrough", tryPlay);
+  }, []);
+
+  // ── Hide intro after 4.2 s (longer to match the slowed playback) ──────────
+  useEffect(() => {
+    const timer = setTimeout(() => setShowIntro(false), 4200);
     return () => clearTimeout(timer);
   }, []);
 
-useEffect(() => {
-  const today = getToday();
-  const savedDate = localStorage.getItem(DAY_STORAGE_KEY);
-  const savedIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "0", 10);
+  // ── Restore today's message from storage (independent of intro) ───────────
+  useEffect(() => {
+    const today = getToday();
+    const savedDate = localStorage.getItem(DAY_STORAGE_KEY);
+    const savedIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "0", 10);
 
-  if (savedDate === today) {
-    setAlreadyOpenedToday(true);
-    setMessage(MESSAGES[savedIndex % MESSAGES.length]);
-    // ❌ DO NOT auto-open
-  }
-}, []);
+    if (savedDate === today) {
+      setAlreadyOpenedToday(true);
+      setMessage(MESSAGES[savedIndex % MESSAGES.length]);
+      // ❌ DO NOT auto-open the envelope
+    }
+  }, []);
 
+  // ── Countdown ticker ──────────────────────────────────────────────────────
   useEffect(() => {
     if (!alreadyOpenedToday) return;
     const interval = setInterval(() => {
@@ -89,27 +118,27 @@ useEffect(() => {
     return () => clearInterval(interval);
   }, [alreadyOpenedToday]);
 
-function handleOpen() {
-  setAnimating(true);
+  function handleOpen() {
+    setAnimating(true);
 
-  setTimeout(() => {
-    if (!alreadyOpenedToday) {
-      const today = getToday();
-      const prevIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "-1", 10);
-      const nextIndex = (prevIndex + 1) % MESSAGES.length;
+    setTimeout(() => {
+      if (!alreadyOpenedToday) {
+        const today = getToday();
+        const prevIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "-1", 10);
+        const nextIndex = (prevIndex + 1) % MESSAGES.length;
 
-      localStorage.setItem(DAY_STORAGE_KEY, today);
-      localStorage.setItem(MSG_INDEX_KEY, String(nextIndex));
+        localStorage.setItem(DAY_STORAGE_KEY, today);
+        localStorage.setItem(MSG_INDEX_KEY, String(nextIndex));
 
-      setMessage(MESSAGES[nextIndex]);
-      setAlreadyOpenedToday(true);
-    }
+        setMessage(MESSAGES[nextIndex]);
+        setAlreadyOpenedToday(true);
+      }
 
-    // ALWAYS open (even if already opened today)
-    setOpened(true);
-    setAnimating(false);
-  }, 900);
-}
+      // ALWAYS open (even if already opened today)
+      setOpened(true);
+      setAnimating(false);
+    }, 900);
+  }
 
   const pad = (n) => String(n).padStart(2, "0");
 
@@ -137,25 +166,21 @@ function handleOpen() {
 
         {showIntro ? (
           <div style={styles.introStage}>
-<video
-  src="/dove.mp4"
-  muted
-  playsInline
-  autoPlay
-  loop
-  preload="auto"
-  controls={false}
-  ref={(video) => {
-    if (video) {
-      video.play().catch(() => {});
-    }
-  }}
-  style={{
-    ...styles.doveImg,
-    mixBlendMode: "multiply",
-    pointerEvents: "none",
-  }}
-/>
+            <video
+              ref={videoRef}
+              src="/dove.mp4"
+              muted
+              playsInline
+              autoPlay
+              loop
+              preload="auto"
+              controls={false}
+              style={{
+                ...styles.doveImg,
+                mixBlendMode: "multiply",
+                pointerEvents: "none",
+              }}
+            />
           </div>
         ) : (
           <div style={{ ...styles.card, animation: "fadeInCard 0.7s ease forwards" }}>
@@ -176,7 +201,7 @@ function handleOpen() {
               </div>
             )}
 
-{opened && alreadyOpenedToday && (
+            {opened && alreadyOpenedToday && (
               <div style={styles.countdownBox}>
                 <span style={styles.countdownLabel}>next message in</span>
                 <span style={styles.countdownTime}>
@@ -251,28 +276,24 @@ const styles = {
     height: "100vh",
     objectFit: "cover",
   },
-card: {
-  position: "relative",
-  zIndex: 1,
-
-  background: "rgba(255, 255, 255, 0.22)", // ✨ translucent
-  backdropFilter: "blur(12px)",
-  WebkitBackdropFilter: "blur(12px)",
-
-  borderRadius: "20px",
-  padding: "20px 18px 16px",
-  maxWidth: "240px",
-  width: "70%",
-
-  boxShadow: "0 8px 32px rgba(20, 80, 120, 0.2)",
-  border: "1px solid rgba(255,255,255,0.35)",
-
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  gap: "8px",
-  textAlign: "center",
-},
+  card: {
+    position: "relative",
+    zIndex: 1,
+    background: "rgba(255, 255, 255, 0.22)",
+    backdropFilter: "blur(12px)",
+    WebkitBackdropFilter: "blur(12px)",
+    borderRadius: "20px",
+    padding: "20px 18px 16px",
+    maxWidth: "240px",
+    width: "70%",
+    boxShadow: "0 8px 32px rgba(20, 80, 120, 0.2)",
+    border: "1px solid rgba(255,255,255,0.35)",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "8px",
+    textAlign: "center",
+  },
   label: {
     fontSize: "11px",
     letterSpacing: "0.12em",
@@ -313,22 +334,18 @@ card: {
     fontStyle: "italic",
     fontFamily: "'Cinzel'",
   },
-messageBox: {
-  background: "linear-gradient(135deg, rgba(248, 245, 166, 0.35), rgba(235, 241, 194, 0.35))",
-  backdropFilter: "blur(10px)",
-  WebkitBackdropFilter: "blur(10px)",
-
-  //border: "1.5px solid rgba(255,255,255,0.6)",
-  borderRadius: "12px",
-  padding: "16px 14px",
-  width: "100%",
-  boxSizing: "border-box",
-
-  boxShadow: "0 4px 16px rgba(120, 120, 40, 0.15)",
-},
+  messageBox: {
+    background: "linear-gradient(135deg, rgba(248, 245, 166, 0.35), rgba(235, 241, 194, 0.35))",
+    backdropFilter: "blur(10px)",
+    WebkitBackdropFilter: "blur(10px)",
+    borderRadius: "12px",
+    padding: "16px 14px",
+    width: "100%",
+    boxSizing: "border-box",
+    boxShadow: "0 4px 16px rgba(120, 120, 40, 0.15)",
+  },
   messageText: {
     fontSize: "12px",
-    //fontWeight: "600",
     color: "#000000",
     lineHeight: 1.65,
     margin: 0,
@@ -340,7 +357,6 @@ messageBox: {
     flexDirection: "column",
     alignItems: "center",
     gap: "3px",
-
   },
   countdownLabel: {
     fontSize: "11px",
