@@ -7,15 +7,15 @@ const MESSAGES = [
   "as long as l'm there, you'll always have someone who is proud of you in everything, thanks for making my life brighter madhu :) happiest birthday to you -lokesh",
   "Always loved our gossip sessions and hopefully we will gossip endlessly when we me meet - ganesh",
   "'Ammaadi needhaan illaadha naanum venmegam vandhu neendhaadha vaanam'",
-  "everyone needs a madhu in their lives",
   "Happiest bday to the elder sister I have never had -Faheema",
   "van gogh chose to see the beauty in the mundane; be it skies, flowers, people or the different colours hiding in this vast stretch of nature. it's a shame he didn't get to see you during your favourite holi celebrations, would've made one hell of a painting. -faheems",
   "'Ponmanjal manjal pennae engae selgiraai? Minnanjal polae vanthu sendru kolgiraai'",
-  "you are a renaissance soul di chellam",
-    "I love you soooo much from that first day of Sr. KG to forever ! -hafieza",
+  "I love you soooo much from that first day of Sr. KG to forever ! -hafieza",
   "you are beautiful, our beautiful princess",
-    " i hope everyone who gets to see you irl hears the first few notes of balam pichkaari on their mind. you bring so much colour into people's lives madhuuuu and in return get shades of different colours on yourself, the ones you'd let stay a little while longer before washing it off. -faheems",
+  " i hope everyone who gets to see you irl hears the first few notes of balam pichkaari on their mind. you bring so much colour into people's lives madhuuuu and in return get shades of different colours on yourself, the ones you'd let stay a little while longer before washing it off. -faheems",
+  "everyone needs a madhu in their lives",
   "I will always embrace and be proud that you will always stand alongside of this brother of yours all the time -ganesh",
+  "you are a renaissance soul di chellam",
   "Thank you for coming into my life and making it a thousand times better, my baby. -thara",
   "Thank you so much Madhu for existing, You helped me a lot of times and you supported me and Thara as well and we had a lot of great fun memories, we all should meet soon and I love you so much and A very happy bday to MADHU MAM -adi",
   "i still look at that one crocheted clip you sent me and think how grateful i am to have someone to love me this much -Roofa",
@@ -86,7 +86,7 @@ useEffect(() => {
 
   const timer = setTimeout(() => {
     setShowIntro(false);
-  }, 2400); // NOW starts AFTER gif loads
+  }, 3000); // NOW starts AFTER gif loads
 
   return () => clearTimeout(timer);
 }, [gifLoaded]);
