@@ -141,9 +141,12 @@ function handleOpen() {
 
       setMessage(MESSAGES[nextIndex]);
       setAlreadyOpenedToday(true);
+    } else {
+      // 🔥 THIS FIX: reload existing message
+      const savedIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "0", 10);
+      setMessage(MESSAGES[savedIndex % MESSAGES.length]);
     }
 
-    // ALWAYS open (even if already opened today)
     setOpened(true);
     setAnimating(false);
   }, 900);
