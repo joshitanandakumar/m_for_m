@@ -56,6 +56,6 @@ html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
-  background: #b8dded; /* fallback color matching your gradient */
+  background: #000000; /* fallback color matching your gradient */
   overscroll-behavior: none; /* stops white pull bounce */
 }

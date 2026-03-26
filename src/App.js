@@ -94,12 +94,25 @@ useEffect(() => {
 useEffect(() => {
   const today = getToday();
   const savedDate = localStorage.getItem(DAY_STORAGE_KEY);
-  const savedIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "0", 10);
+  const prevIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "-1", 10);
 
-  if (savedDate === today) {
+  if (savedDate !== today) {
+    // ✅ NEW DAY (even if app was closed)
+    const nextIndex = (prevIndex + 1) % MESSAGES.length;
+
+    localStorage.setItem(DAY_STORAGE_KEY, today);
+    localStorage.setItem(MSG_INDEX_KEY, String(nextIndex));
+
+    // do NOT open yet — just prepare
+    setAlreadyOpenedToday(false);
+    setOpened(false);
+    setMessage("");
+  } else {
+    // same day → load existing message
+    const savedIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "0", 10);
+
     setAlreadyOpenedToday(true);
     setMessage(MESSAGES[savedIndex % MESSAGES.length]);
-    // ❌ DO NOT auto-open
   }
 }, []);
 
@@ -117,12 +130,19 @@ useEffect(() => {
     const savedDate = localStorage.getItem(DAY_STORAGE_KEY);
 
     if (savedDate !== today) {
-      // new day → reset state
+      const prevIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "-1", 10);
+      const nextIndex = (prevIndex + 1) % MESSAGES.length;
+
+      // ✅ update storage immediately at midnight
+      localStorage.setItem(DAY_STORAGE_KEY, today);
+      localStorage.setItem(MSG_INDEX_KEY, String(nextIndex));
+
+      // reset UI
       setAlreadyOpenedToday(false);
       setOpened(false);
       setMessage("");
     }
-  }, 1000); // check every second
+  }, 1000);
 
   return () => clearInterval(interval);
 }, []);
@@ -133,16 +153,26 @@ function handleOpen() {
   setTimeout(() => {
     if (!alreadyOpenedToday) {
       const today = getToday();
-      const prevIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "-1", 10);
-      const nextIndex = (prevIndex + 1) % MESSAGES.length;
+      const savedDate = localStorage.getItem(DAY_STORAGE_KEY);
 
-      localStorage.setItem(DAY_STORAGE_KEY, today);
-      localStorage.setItem(MSG_INDEX_KEY, String(nextIndex));
+      if (savedDate === today) {
+        // already advanced by midnight useEffect, just reload
+        const savedIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "0", 10);
+        setMessage(MESSAGES[savedIndex % MESSAGES.length]);
+      } else {
+        // new day, advance
+        const prevIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "-1", 10);
+        const nextIndex = (prevIndex + 1) % MESSAGES.length;
 
-      setMessage(MESSAGES[nextIndex]);
+        localStorage.setItem(DAY_STORAGE_KEY, today);
+        localStorage.setItem(MSG_INDEX_KEY, String(nextIndex));
+
+        setMessage(MESSAGES[nextIndex]);
+      }
+
       setAlreadyOpenedToday(true);
     } else {
-      // 🔥 THIS FIX: reload existing message
+      // reload existing message
       const savedIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "0", 10);
       setMessage(MESSAGES[savedIndex % MESSAGES.length]);
     }
@@ -156,7 +186,6 @@ function handleReset() {
   // ❌ DO NOT touch localStorage at all
 
   setOpened(false);
-  setMessage("");
 
   // keep alreadyOpenedToday TRUE so it doesn't advance
   // (this is key)
