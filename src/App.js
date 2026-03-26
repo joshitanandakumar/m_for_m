@@ -151,13 +151,13 @@ function handleOpen() {
 
 function handleReset() {
   localStorage.removeItem(DAY_STORAGE_KEY);
-  localStorage.removeItem(MSG_INDEX_KEY);
+  // ❌ remove this line:
+  // localStorage.removeItem(MSG_INDEX_KEY);
 
   setOpened(false);
   setAlreadyOpenedToday(false);
   setMessage("");
 
-  // optional: replay intro animation
   setShowIntro(true);
   setGifKey((prev) => prev + 1);
 
