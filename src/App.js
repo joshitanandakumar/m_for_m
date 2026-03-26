@@ -7,33 +7,43 @@ const MESSAGES = [
   "as long as l'm there, you'll always have someone who is proud of you in everything, thanks for making my life brighter madhu :) happiest birthday to you -lokesh",
   "Always loved our gossip sessions and hopefully we will gossip endlessly when we me meet - ganesh",
   "'Ammaadi needhaan illaadha naanum venmegam vandhu neendhaadha vaanam'",
-  "I love you soooo much from that first day of Sr. KG to forever ! -hafieza",
+  "everyone needs a madhu in their lives",
   "Happiest bday to the elder sister I have never had -Faheema",
   "van gogh chose to see the beauty in the mundane; be it skies, flowers, people or the different colours hiding in this vast stretch of nature. it's a shame he didn't get to see you during your favourite holi celebrations, would've made one hell of a painting. -faheems",
-  " i hope everyone who gets to see you irl hears the first few notes of balam pichkaari on their mind. you bring so much colour into people's lives madhuuuu and in return get shades of different colours on yourself, the ones you'd let stay a little while longer before washing it off. -faheems",
-  "i hope this new chapter of yours brings more yellow into your life ummaaaa buh bye iloveyouuuu 💛💛💛 - faheems",
   "'Ponmanjal manjal pennae engae selgiraai? Minnanjal polae vanthu sendru kolgiraai'",
+  "you are a renaissance soul di chellam",
+    "I love you soooo much from that first day of Sr. KG to forever ! -hafieza",
+  "you are beautiful, our beautiful princess",
+    " i hope everyone who gets to see you irl hears the first few notes of balam pichkaari on their mind. you bring so much colour into people's lives madhuuuu and in return get shades of different colours on yourself, the ones you'd let stay a little while longer before washing it off. -faheems",
   "I will always embrace and be proud that you will always stand alongside of this brother of yours all the time -ganesh",
   "Thank you for coming into my life and making it a thousand times better, my baby. -thara",
   "Thank you so much Madhu for existing, You helped me a lot of times and you supported me and Thara as well and we had a lot of great fun memories, we all should meet soon and I love you so much and A very happy bday to MADHU MAM -adi",
   "i still look at that one crocheted clip you sent me and think how grateful i am to have someone to love me this much -Roofa",
   "You have no idea how much i look up to you and love you - so sexy so smart and so funny pls don't go bald -Kaavz",
+  "thank you for being the person i can run to and cry with no matter how far away you are i will always feel like you're beside me because of how much love you give",
   "'Poovum ivalum onnu, enna konnupputtaa konnu'",
   "Okay here if goes my love, the first thing I'm proud of in this life is being called your bestfriend🫶🏻 You mean the world to me Madhu and nothing can ever ever change that -Sakshi",
   "Hi Madhu!! Though we talk too less, I have always felt this twin sister vibes from you😛 -Nei",
+  "you have changed many people's lives with your words & kindess, and i think thats the most precious thing in the world -joshi",
   "You are super intelligent and one of the most boldest people I know from twitter!! Happiest Birthday babyy!!😘😘😘 -Nei",
   "Happyy Birthdayy madhu🙂‍↕️, big 24 ehh?? congratulations on being promoted to aunty and hope you stop bothering street dogs and cats now😊 jokes apart hope you have great great year, happy birthday againn🥳 -abra",
   "Many more happy returns of the day Madhu!! wishing you only the best and nothing less -ganesh",
   "'Baatein teri itni haseen'",
   "You’re the ray of sunshine that keeps me warm and makes my life bright. -thara",
   "madhu you are a light and the brightest star for so many people in your life , always hoping for a chance to get close to you and love you for the way you are and the amazing human being you are , stay the same and let's get drunk as soon as possible 🥰🥰🌹🌹💋💋💋 -Harini",
+  "en azhaga neenga? en chellamma neenga? en pattaa neenga? en chittaa neenga? en thangakutti ah neenga? en vairamaa neenga? en muththazhagi nee ummaaaaa hehehe",
   "you absolutely slay, your body tea, skin smooth, your vibe ethereal, your haters will rot and you keep winning -Roofa",
   "In next life we wouldn’t be long distance besties and we would have sleepover every weekends -Faheema",
   "There aren’t enough words to express how much I love you, and I would do anything to keep you by my side. -thara",
+  "i hope this new chapter of yours brings more yellow into your life ummaaaa buh bye iloveyouuuu 💛💛💛 - faheems",
   "'Dil karta hai teri baatein sunu'",
   "You’re my world -Faheema",
+  "en azhagu raajathi nee",
   "thinking about you and how far you've come how many lives you've changed inspires me the most -joshi",
+  "everything is gonna be okay",
   "Hope you have a great year and you will always be in my prayers and hope you get everything you wish for🧿🧿🧿 -ganesh",
+  "what is life without you madhu",
+
 
 ];
 
@@ -123,6 +133,21 @@ function handleOpen() {
   }, 900);
 }
 
+function handleReset() {
+  localStorage.removeItem(DAY_STORAGE_KEY);
+  localStorage.removeItem(MSG_INDEX_KEY);
+
+  setOpened(false);
+  setAlreadyOpenedToday(false);
+  setMessage("");
+
+  // optional: replay intro animation
+  setShowIntro(true);
+  setGifKey((prev) => prev + 1);
+
+  setTimeout(() => setShowIntro(false), 2400);
+}
+
   const pad = (n) => String(n).padStart(2, "0");
 
   return (
@@ -192,6 +217,16 @@ function handleOpen() {
             <p style={styles.footer}>remember, you are always loved ♡</p>
           </div>
         )}
+
+        {!showIntro && opened && (
+          <button
+            onClick={handleReset}
+            style={styles.moonButton}
+            aria-label="Restart messages"
+          >
+            🌙
+          </button>
+        )}
       </div>
     </>
   );
@@ -228,6 +263,7 @@ const styles = {
     backgroundPosition: "center",
     backgroundRepeat: "no-repeat",
     display: "flex",
+    flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
     fontFamily: "'Cinzel'",
@@ -367,5 +403,20 @@ messageBox: {
     margin: 0,
     marginTop: "1px",
     fontFamily: "'Comfortaa'",
+  },
+  moonButton: {
+    background: "rgba(255,255,255,0.15)",
+    border: "none",
+    borderRadius: "50%",
+    width: "28px",
+    height: "28px",
+    fontSize: "17px",
+    cursor: "pointer",
+    backdropFilter: "blur(6px)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    transition: "all 0.2s ease",
+    marginTop: "20px",
   },
 };
