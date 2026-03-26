@@ -63,8 +63,14 @@ export default function App() {
   const [countdown, setCountdown] = useState(getMidnightCountdown());
   const [animating, setAnimating] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
+  const [gifKey, setGifKey] = useState(0);
 
   useEffect(() => {
+    setShowIntro(true);
+
+    // 🔥 force GIF restart
+    setGifKey((prev) => prev + 1);
+
     const timer = setTimeout(() => setShowIntro(false), 2400);
     return () => clearTimeout(timer);
   }, []);
@@ -138,7 +144,8 @@ function handleOpen() {
         {showIntro ? (
           <div style={styles.introStage}>
 <img
-  src="/dove.gif"
+  key={gifKey} // 🔥 THIS is the magic
+  src={`/dove.gif?${gifKey}`} // 🔥 busts cache
   alt="dove animation"
   style={{
     ...styles.doveImg,
