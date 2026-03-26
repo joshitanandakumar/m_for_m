@@ -103,13 +103,29 @@ useEffect(() => {
   }
 }, []);
 
-  useEffect(() => {
-    if (!alreadyOpenedToday) return;
-    const interval = setInterval(() => {
-      setCountdown(getMidnightCountdown());
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [alreadyOpenedToday]);
+useEffect(() => {
+  const interval = setInterval(() => {
+    setCountdown(getMidnightCountdown());
+  }, 1000);
+
+  return () => clearInterval(interval);
+}, []);
+
+useEffect(() => {
+  const interval = setInterval(() => {
+    const today = getToday();
+    const savedDate = localStorage.getItem(DAY_STORAGE_KEY);
+
+    if (savedDate !== today) {
+      // new day → reset state
+      setAlreadyOpenedToday(false);
+      setOpened(false);
+      setMessage("");
+    }
+  }, 1000); // check every second
+
+  return () => clearInterval(interval);
+}, []);
 
 function handleOpen() {
   setAnimating(true);
