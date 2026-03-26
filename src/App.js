@@ -137,19 +137,9 @@ function handleOpen() {
 
         {showIntro ? (
           <div style={styles.introStage}>
-<video
+<img
   src="/dove.gif"
-  muted
-  playsInline
-  autoPlay
-  loop
-  preload="auto"
-  controls={false}
-  ref={(video) => {
-    if (video) {
-      video.play().catch(() => {});
-    }
-  }}
+  alt="dove animation"
   style={{
     ...styles.doveImg,
     mixBlendMode: "multiply",
