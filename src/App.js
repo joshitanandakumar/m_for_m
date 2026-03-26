@@ -86,7 +86,7 @@ useEffect(() => {
 
   const timer = setTimeout(() => {
     setShowIntro(false);
-  }, 3000); // NOW starts AFTER gif loads
+  }, 3100); // NOW starts AFTER gif loads
 
   return () => clearTimeout(timer);
 }, [gifLoaded]);
