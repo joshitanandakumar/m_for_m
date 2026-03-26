@@ -150,13 +150,13 @@ function handleOpen() {
 }
 
 function handleReset() {
-  localStorage.removeItem(DAY_STORAGE_KEY);
-  // ❌ remove this line:
-  // localStorage.removeItem(MSG_INDEX_KEY);
+  // ❌ DO NOT touch localStorage at all
 
   setOpened(false);
-  setAlreadyOpenedToday(false);
   setMessage("");
+
+  // keep alreadyOpenedToday TRUE so it doesn't advance
+  // (this is key)
 
   setShowIntro(true);
   setGifKey((prev) => prev + 1);
