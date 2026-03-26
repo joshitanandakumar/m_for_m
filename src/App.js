@@ -96,7 +96,7 @@ useEffect(() => {
   const savedDate = localStorage.getItem(DAY_STORAGE_KEY);
   const prevIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "-1", 10);
 
-  if (savedDate && savedDate !== today) {
+  if (savedDate && savedDate !== today && !alreadyOpenedToday) {
     // ✅ NEW DAY (even if app was closed)
     const nextIndex = (prevIndex + 1) % MESSAGES.length;
 
@@ -129,7 +129,7 @@ useEffect(() => {
     const today = getToday();
     const savedDate = localStorage.getItem(DAY_STORAGE_KEY);
 
-    if (savedDate && savedDate !== today) {
+    if (savedDate && savedDate !== today && !alreadyOpenedToday) {
       const prevIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "-1", 10);
       const nextIndex = (prevIndex + 1) % MESSAGES.length;
 
