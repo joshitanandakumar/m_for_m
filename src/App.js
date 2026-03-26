@@ -64,16 +64,22 @@ export default function App() {
   const [animating, setAnimating] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
   const [gifKey, setGifKey] = useState(0);
+  const [gifLoaded, setGifLoaded] = useState(false);
 
-  useEffect(() => {
-    setShowIntro(true);
+useEffect(() => {
+  setShowIntro(true);
+  setGifKey((prev) => prev + 1);
+}, []);
 
-    // 🔥 force GIF restart
-    setGifKey((prev) => prev + 1);
+useEffect(() => {
+  if (!gifLoaded) return;
 
-    const timer = setTimeout(() => setShowIntro(false), 2400);
-    return () => clearTimeout(timer);
-  }, []);
+  const timer = setTimeout(() => {
+    setShowIntro(false);
+  }, 2400); // NOW starts AFTER gif loads
+
+  return () => clearTimeout(timer);
+}, [gifLoaded]);
 
 useEffect(() => {
   const today = getToday();
@@ -144,9 +150,10 @@ function handleOpen() {
         {showIntro ? (
           <div style={styles.introStage}>
 <img
-  key={gifKey} // 🔥 THIS is the magic
-  src={`/dove.gif?${gifKey}`} // 🔥 busts cache
+  key={gifKey}
+  src={`/dove.gif?${gifKey}`}
   alt="dove animation"
+  onLoad={() => setGifLoaded(true)} // 🔥 THIS is the fix
   style={{
     ...styles.doveImg,
     mixBlendMode: "multiply",
