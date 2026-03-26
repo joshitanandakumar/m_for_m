@@ -114,7 +114,7 @@ useEffect(() => {
     setAlreadyOpenedToday(true);
     setMessage(MESSAGES[savedIndex % MESSAGES.length]);
   }
-}, []);
+}, [alreadyOpenedToday]);
 
 useEffect(() => {
   const interval = setInterval(() => {
@@ -145,7 +145,7 @@ useEffect(() => {
   }, 1000);
 
   return () => clearInterval(interval);
-}, []);
+}, [alreadyOpenedToday]);
 
 function handleOpen() {
   setAnimating(true);
