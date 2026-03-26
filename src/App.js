@@ -138,7 +138,7 @@ function handleOpen() {
         {showIntro ? (
           <div style={styles.introStage}>
 <video
-  src="/dove.mp4"
+  src="/dove.gif"
   muted
   playsInline
   autoPlay
