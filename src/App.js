@@ -2,9 +2,6 @@ import { useState, useEffect } from "react";
 import "./App.css";
 
 const MESSAGES = [
-  "you're the sister we always wished for. the best sister we could ever get hehe -joshi",
-  "In this world full of chaos you are my place of calm and comfort ! -hafieza",
-  "as long as l'm there, you'll always have someone who is proud of you in everything, thanks for making my life brighter madhu :) happiest birthday to you -lokesh",
   "Always loved our gossip sessions and hopefully we will gossip endlessly when we me meet - ganesh",
   "Ishq karoon ya karoon ibaadat ikko hi gal ae alf madhu, alf madhu, alf madhu hu. madhu hi meri noor ka jharna hai<333333 -pani",
   "'Ammaadi needhaan illaadha naanum venmegam vandhu neendhaadha vaanam'",
@@ -48,6 +45,9 @@ const MESSAGES = [
   "Hope you have a great year and you will always be in my prayers and hope you get everything you wish for🧿🧿🧿 -ganesh",
   "what is life without you madhu",
   "Iloveyouuuuuu so much you're so amazing♡♡♡♡♡-pani",
+  "you're the sister we always wished for. the best sister we could ever get hehe -joshi",
+  "In this world full of chaos you are my place of calm and comfort ! -hafieza",
+  "as long as l'm there, you'll always have someone who is proud of you in everything, thanks for making my life brighter madhu :) happiest birthday to you -lokesh",
 
 
 ];
