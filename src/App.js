@@ -144,7 +144,7 @@ function handleOpen() {
 
     if (!lastOpened) {
       // first ever open → keep the initial message index (now default 1)
-      currentIndex = currentIndex;
+      // no change needed here
     } else {
       const elapsed = now - lastOpened;
       const cycles = Math.floor(elapsed / THREE_HOURS);
