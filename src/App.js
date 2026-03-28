@@ -52,30 +52,29 @@ const MESSAGES = [
 
 ];
 
-const DAY_STORAGE_KEY = "motd_opened_date";
 const MSG_INDEX_KEY = "motd_message_index";
+const LAST_OPENED_KEY = "motd_last_opened_time";
 
-function getToday() {
-  const d = new Date();
-  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
-}
+function getThreeHourCountdown() {
+  const lastOpened = parseInt(localStorage.getItem(LAST_OPENED_KEY) ?? "0", 10);
+  if (!lastOpened) return { h: 3, m: 0, s: 0 };
 
-function getMidnightCountdown() {
-  const now = new Date();
-  const midnight = new Date();
-  midnight.setHours(24, 0, 0, 0);
-  const diff = midnight - now;
-  const h = Math.floor(diff / 3600000);
-  const m = Math.floor((diff % 3600000) / 60000);
-  const s = Math.floor((diff % 60000) / 1000);
+  const now = Date.now();
+  const THREE_HOURS = 3 * 60 * 60 * 1000;
+  const elapsed = now - lastOpened;
+  const remaining = Math.max(0, THREE_HOURS - elapsed);
+
+  const h = Math.floor(remaining / 3600000);
+  const m = Math.floor((remaining % 3600000) / 60000);
+  const s = Math.floor((remaining % 60000) / 1000);
   return { h, m, s };
 }
 
 export default function App() {
   const [opened, setOpened] = useState(false);
   const [message, setMessage] = useState("");
-  const [alreadyOpenedToday, setAlreadyOpenedToday] = useState(false);
-  const [countdown, setCountdown] = useState(getMidnightCountdown());
+  const [hasOpened, setHasOpened] = useState(false);
+  const [countdown, setCountdown] = useState(getThreeHourCountdown());
   const [animating, setAnimating] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
   const [gifKey, setGifKey] = useState(0);
@@ -97,91 +96,56 @@ useEffect(() => {
 }, [gifLoaded]);
 
 useEffect(() => {
-  const today = getToday();
-  const savedDate = localStorage.getItem(DAY_STORAGE_KEY);
-  const prevIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "-1", 10);
+  const savedIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "0", 10);
+  const lastOpened = parseInt(localStorage.getItem(LAST_OPENED_KEY) ?? "0", 10);
 
-  if (savedDate && savedDate !== today && !alreadyOpenedToday) {
-    // ✅ NEW DAY (even if app was closed)
-    const nextIndex = (prevIndex + 1) % MESSAGES.length;
+  const now = Date.now();
+  const THREE_HOURS = 3 * 60 * 60 * 1000;
 
-    localStorage.setItem(DAY_STORAGE_KEY, today);
-    localStorage.setItem(MSG_INDEX_KEY, String(nextIndex));
+  setMessage(MESSAGES[savedIndex]);
 
-    // do NOT open yet — just prepare
-    setAlreadyOpenedToday(false);
-    setOpened(false);
-    setMessage("");
+  if (lastOpened && now - lastOpened < THREE_HOURS) {
+    setHasOpened(true);
   } else {
-    // same day → load existing message
-    const savedIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "0", 10);
-
-    setAlreadyOpenedToday(true);
-    setMessage(MESSAGES[savedIndex % MESSAGES.length]);
+    setHasOpened(false);
   }
-}, [alreadyOpenedToday]);
+}, []);
 
 useEffect(() => {
   const interval = setInterval(() => {
-    setCountdown(getMidnightCountdown());
+    setCountdown(getThreeHourCountdown());
   }, 1000);
 
   return () => clearInterval(interval);
 }, []);
 
-useEffect(() => {
-  const interval = setInterval(() => {
-    const today = getToday();
-    const savedDate = localStorage.getItem(DAY_STORAGE_KEY);
-
-    if (savedDate && savedDate !== today && !alreadyOpenedToday) {
-      const prevIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "-1", 10);
-      const nextIndex = (prevIndex + 1) % MESSAGES.length;
-
-      // ✅ update storage immediately at midnight
-      localStorage.setItem(DAY_STORAGE_KEY, today);
-      localStorage.setItem(MSG_INDEX_KEY, String(nextIndex));
-
-      // reset UI
-      setAlreadyOpenedToday(false);
-      setOpened(false);
-      setMessage("");
-    }
-  }, 1000);
-
-  return () => clearInterval(interval);
-}, [alreadyOpenedToday]);
 
 function handleOpen() {
   setAnimating(true);
 
   setTimeout(() => {
-    if (!alreadyOpenedToday) {
-      const today = getToday();
-      const savedDate = localStorage.getItem(DAY_STORAGE_KEY);
+    const now = Date.now();
+    const lastOpened = parseInt(localStorage.getItem(LAST_OPENED_KEY) ?? "0", 10);
+    const savedIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "0", 10);
 
-      if (savedDate === today) {
-        // already advanced by midnight useEffect, just reload
-        const savedIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "0", 10);
-        setMessage(MESSAGES[savedIndex % MESSAGES.length]);
-      } else {
-        // new day, advance
-        const prevIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "-1", 10);
-        const nextIndex = (prevIndex + 1) % MESSAGES.length;
+    const THREE_HOURS = 3 * 60 * 60 * 1000;
 
-        localStorage.setItem(DAY_STORAGE_KEY, today);
-        localStorage.setItem(MSG_INDEX_KEY, String(nextIndex));
+    let currentIndex = savedIndex;
 
-        setMessage(MESSAGES[nextIndex]);
-      }
-
-      setAlreadyOpenedToday(true);
-    } else {
-      // reload existing message
-      const savedIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "0", 10);
-      setMessage(MESSAGES[savedIndex % MESSAGES.length]);
+    if (!lastOpened) {
+      // first ever open → stay at 0
+      currentIndex = 0;
+    } else if (now - lastOpened >= THREE_HOURS) {
+      // enough time passed → move forward
+      currentIndex = (savedIndex + 1) % MESSAGES.length;
+      localStorage.setItem(MSG_INDEX_KEY, String(currentIndex));
     }
 
+    // ✅ ONLY NOW start the timer
+    localStorage.setItem(LAST_OPENED_KEY, String(now));
+
+    setMessage(MESSAGES[currentIndex]);
+    setHasOpened(true);
     setOpened(true);
     setAnimating(false);
   }, 900);
@@ -192,7 +156,7 @@ function handleReset() {
 
   setOpened(false);
 
-  // keep alreadyOpenedToday TRUE so it doesn't advance
+  // keep hasOpened TRUE so it doesn't advance
   // (this is key)
 
   setShowIntro(true);
@@ -258,7 +222,7 @@ function handleReset() {
               </div>
             )}
 
-{opened && alreadyOpenedToday && (
+{opened && hasOpened && (
               <div style={styles.countdownBox}>
                 <span style={styles.countdownLabel}>next message in</span>
                 <span style={styles.countdownTime}>
