@@ -160,8 +160,10 @@ function handleOpen() {
       localStorage.setItem(MSG_INDEX_KEY, String(currentIndex));
     }
 
-    // always reset timer
-    localStorage.setItem(LAST_OPENED_KEY, String(now));
+// only start timer on a fresh open
+if (!lastOpened || now - lastOpened >= THREE_HOURS) {
+  localStorage.setItem(LAST_OPENED_KEY, String(now));
+}
 
     setMessage(MESSAGES[currentIndex]);
     setHasOpened(true);
