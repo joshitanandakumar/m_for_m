@@ -54,6 +54,7 @@ const MESSAGES = [
 
 const MSG_INDEX_KEY = "motd_message_index";
 const LAST_OPENED_KEY = "motd_last_opened_time";
+const DEFAULT_MESSAGE_INDEX = 1; // start from message 1 now, not 0
 
 function getThreeHourCountdown() {
   const lastOpened = parseInt(localStorage.getItem(LAST_OPENED_KEY) ?? "0", 10);
@@ -96,13 +97,20 @@ useEffect(() => {
 }, [gifLoaded]);
 
 useEffect(() => {
-  const savedIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "0", 10);
-  const lastOpened = parseInt(localStorage.getItem(LAST_OPENED_KEY) ?? "0", 10);
+  const storedIndexRaw = localStorage.getItem(MSG_INDEX_KEY);
+  const storedIndex = parseInt(storedIndexRaw ?? "", 10);
+  const validSavedIndex = !Number.isNaN(storedIndex) && storedIndex >= 0 && storedIndex < MESSAGES.length;
+  const initialIndex = validSavedIndex ? storedIndex : DEFAULT_MESSAGE_INDEX;
 
+  if (!validSavedIndex) {
+    localStorage.setItem(MSG_INDEX_KEY, String(initialIndex));
+  }
+
+  const lastOpened = parseInt(localStorage.getItem(LAST_OPENED_KEY) ?? "0", 10);
   const now = Date.now();
   const THREE_HOURS = 3 * 60 * 60 * 1000;
 
-  setMessage(MESSAGES[savedIndex]);
+  setMessage(MESSAGES[initialIndex]);
 
   if (lastOpened && now - lastOpened < THREE_HOURS) {
     setHasOpened(true);
@@ -126,22 +134,28 @@ function handleOpen() {
   setTimeout(() => {
     const now = Date.now();
     const lastOpened = parseInt(localStorage.getItem(LAST_OPENED_KEY) ?? "0", 10);
-    const savedIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "0", 10);
+    const savedIndexRaw = localStorage.getItem(MSG_INDEX_KEY);
+    const savedIndex = parseInt(savedIndexRaw ?? "", 10);
+    const validSavedIndex = !Number.isNaN(savedIndex) && savedIndex >= 0 && savedIndex < MESSAGES.length;
 
     const THREE_HOURS = 3 * 60 * 60 * 1000;
 
-    let currentIndex = savedIndex;
+    let currentIndex = validSavedIndex ? savedIndex : DEFAULT_MESSAGE_INDEX;
 
     if (!lastOpened) {
-      // first ever open → stay at 0
-      currentIndex = 0;
-    } else if (now - lastOpened >= THREE_HOURS) {
-      // enough time passed → move forward
-      currentIndex = (savedIndex + 1) % MESSAGES.length;
-      localStorage.setItem(MSG_INDEX_KEY, String(currentIndex));
+      // first ever open → keep the initial message index (now default 1)
+      currentIndex = currentIndex;
+    } else {
+      const elapsed = now - lastOpened;
+      const cycles = Math.floor(elapsed / THREE_HOURS);
+
+      if (cycles > 0) {
+        currentIndex = (currentIndex + cycles) % MESSAGES.length;
+        localStorage.setItem(MSG_INDEX_KEY, String(currentIndex));
+      }
     }
 
-    // ✅ ONLY NOW start the timer
+    // ✅ ALWAYS restart the 3-hour timer.
     localStorage.setItem(LAST_OPENED_KEY, String(now));
 
     setMessage(MESSAGES[currentIndex]);
