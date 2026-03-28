@@ -2,13 +2,8 @@ import { useState, useEffect } from "react";
 import "./App.css";
 
 const MESSAGES = [
-  "Always loved our gossip sessions and hopefully we will gossip endlessly when we me meet - ganesh",
-  "Ishq karoon ya karoon ibaadat ikko hi gal ae alf madhu, alf madhu, alf madhu hu. madhu hi meri noor ka jharna hai<333333 -pani",
-  "'Ammaadi needhaan illaadha naanum venmegam vandhu neendhaadha vaanam'",
+  "madhu you are a light and the brightest star for so many people in your life , always hoping for a chance to get close to you and love you for the way you are and the amazing human being you are , stay the same and let's get drunk as soon as possible 🥰🥰🌹🌹💋💋💋 -Harini",
   "Happiest bday to the elder sister I have never had -Faheema",
-  "van gogh chose to see the beauty in the mundane; be it skies, flowers, people or the different colours hiding in this vast stretch of nature. it's a shame he didn't get to see you during your favourite holi celebrations, would've made one hell of a painting. -faheems",
-  "This is the second birthday of yours I’m lucky enough to celebrate, and that still feels surreal to me. Getting to know you has been one of the greatest privileges of my life♡♡ -pani",
-  "'Ponmanjal manjal pennae engae selgiraai? Minnanjal polae vanthu sendru kolgiraai'",
   "I love you soooo much from that first day of Sr. KG to forever ! -hafieza",
   "you are beautiful, our beautiful princess",
   " i hope everyone who gets to see you irl hears the first few notes of balam pichkaari on their mind. you bring so much colour into people's lives madhuuuu and in return get shades of different colours on yourself, the ones you'd let stay a little while longer before washing it off. -faheems",
@@ -31,7 +26,6 @@ const MESSAGES = [
   "thank you for crossing my path in this vast universe, for making my world brighter by just being in it,i pray that all the warmth, love, and light you give to everyone else comes back to you tenfold because someone as special as you deserves nothing less♡♡♡ -pani",
   "'Baatein teri itni haseen'",
   "You’re the ray of sunshine that keeps me warm and makes my life bright. -thara",
-  "madhu you are a light and the brightest star for so many people in your life , always hoping for a chance to get close to you and love you for the way you are and the amazing human being you are , stay the same and let's get drunk as soon as possible 🥰🥰🌹🌹💋💋💋 -Harini",
   "en azhaga neenga? en chellamma neenga? en pattaa neenga? en chittaa neenga? en thangakutti ah neenga? en vairamaa neenga? en muththazhagi nee ummaaaaa hehehe",
   "you absolutely slay, your body tea, skin smooth, your vibe ethereal, your haters will rot and you keep winning -Roofa",
   "In next life we wouldn’t be long distance besties and we would have sleepover every weekends -Faheema",
@@ -45,16 +39,20 @@ const MESSAGES = [
   "Hope you have a great year and you will always be in my prayers and hope you get everything you wish for🧿🧿🧿 -ganesh",
   "what is life without you madhu",
   "Iloveyouuuuuu so much you're so amazing♡♡♡♡♡-pani",
+  "Always loved our gossip sessions and hopefully we will gossip endlessly when we me meet - ganesh",
+  "Ishq karoon ya karoon ibaadat ikko hi gal ae alf madhu, alf madhu, alf madhu hu. madhu hi meri noor ka jharna hai<333333 -pani",
+  "'Ammaadi needhaan illaadha naanum venmegam vandhu neendhaadha vaanam'",
   "you're the sister we always wished for. the best sister we could ever get hehe -joshi",
   "In this world full of chaos you are my place of calm and comfort ! -hafieza",
   "as long as l'm there, you'll always have someone who is proud of you in everything, thanks for making my life brighter madhu :) happiest birthday to you -lokesh",
-
-
+  "van gogh chose to see the beauty in the mundane; be it skies, flowers, people or the different colours hiding in this vast stretch of nature. it's a shame he didn't get to see you during your favourite holi celebrations, would've made one hell of a painting. -faheems",
+  "This is the second birthday of yours I’m lucky enough to celebrate, and that still feels surreal to me. Getting to know you has been one of the greatest privileges of my life♡♡ -pani",
+  "'Ponmanjal manjal pennae engae selgiraai? Minnanjal polae vanthu sendru kolgiraai'",
 ];
 
 const MSG_INDEX_KEY = "motd_message_index";
 const LAST_OPENED_KEY = "motd_last_opened_time";
-const DEFAULT_MESSAGE_INDEX = 1; // start from message 1 now, not 0
+const DEFAULT_MESSAGE_INDEX = 0; // start from message 1 now, not 0
 
 function getThreeHourCountdown() {
   const lastOpened = parseInt(localStorage.getItem(LAST_OPENED_KEY) ?? "0", 10);
@@ -84,6 +82,15 @@ export default function App() {
 useEffect(() => {
   setShowIntro(true);
   setGifKey((prev) => prev + 1);
+}, []);
+
+useEffect(() => {
+  const version = localStorage.getItem("app_version");
+
+  if (version !== "2") {
+    localStorage.clear(); // wipe old buggy state
+    localStorage.setItem("app_version", "2");
+  }
 }, []);
 
 useEffect(() => {
@@ -134,28 +141,26 @@ function handleOpen() {
   setTimeout(() => {
     const now = Date.now();
     const lastOpened = parseInt(localStorage.getItem(LAST_OPENED_KEY) ?? "0", 10);
-    const savedIndexRaw = localStorage.getItem(MSG_INDEX_KEY);
-    const savedIndex = parseInt(savedIndexRaw ?? "", 10);
-    const validSavedIndex = !Number.isNaN(savedIndex) && savedIndex >= 0 && savedIndex < MESSAGES.length;
 
-    const THREE_HOURS = 3 * 60 * 60 * 1000;
+    const savedIndex = parseInt(localStorage.getItem(MSG_INDEX_KEY) ?? "", 10);
+    const validSavedIndex = !Number.isNaN(savedIndex) && savedIndex >= 0 && savedIndex < MESSAGES.length;
 
     let currentIndex = validSavedIndex ? savedIndex : DEFAULT_MESSAGE_INDEX;
 
-    if (!lastOpened) {
-      // first ever open → keep the initial message index (now default 1)
-      // no change needed here
-    } else {
-      const elapsed = now - lastOpened;
-      const cycles = Math.floor(elapsed / THREE_HOURS);
+    const THREE_HOURS = 3 * 60 * 60 * 1000;
 
-      if (cycles > 0) {
-        currentIndex = (currentIndex + cycles) % MESSAGES.length;
-        localStorage.setItem(MSG_INDEX_KEY, String(currentIndex));
-      }
+    // ✅ ONLY move forward by ONE if enough time passed
+    if (lastOpened && now - lastOpened >= THREE_HOURS) {
+      currentIndex = (currentIndex + 1) % MESSAGES.length;
+      localStorage.setItem(MSG_INDEX_KEY, String(currentIndex));
     }
 
-    // ✅ ALWAYS restart the 3-hour timer.
+    // if no previous open state existed, ensure index is persisted
+    if (!lastOpened) {
+      localStorage.setItem(MSG_INDEX_KEY, String(currentIndex));
+    }
+
+    // always reset timer
     localStorage.setItem(LAST_OPENED_KEY, String(now));
 
     setMessage(MESSAGES[currentIndex]);
@@ -168,6 +173,7 @@ function handleOpen() {
 function handleReset() {
   // ❌ DO NOT touch localStorage at all
 
+  setGifLoaded(false);
   setOpened(false);
 
   // keep hasOpened TRUE so it doesn't advance
@@ -175,8 +181,6 @@ function handleReset() {
 
   setShowIntro(true);
   setGifKey((prev) => prev + 1);
-
-  setTimeout(() => setShowIntro(false), 2400);
 }
 
   const pad = (n) => String(n).padStart(2, "0");
